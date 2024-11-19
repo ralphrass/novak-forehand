@@ -725,7 +725,7 @@ export async function getEvents() {
   return [
     {
       id: 1000,
-      name: 'Bear Hug: Live in Concert',
+      name: 'Insights',
       url: '/events/1000',
       date: 'May 20, 2024',
       time: '10 PM',
@@ -743,7 +743,7 @@ export async function getEvents() {
     },
     {
       id: 1001,
-      name: 'Six Fingers — DJ Set',
+      name: 'Desempenho de vendas',
       url: '/events/1001',
       date: 'Jun 2, 2024',
       time: '8 PM',
@@ -761,7 +761,7 @@ export async function getEvents() {
     },
     {
       id: 1002,
-      name: 'We All Look The Same',
+      name: 'Gerador de resumos',
       url: '/events/1002',
       date: 'Aug 5, 2024',
       time: '4 PM',
@@ -779,7 +779,7 @@ export async function getEvents() {
     },
     {
       id: 1003,
-      name: 'Viking People',
+      name: 'Análise de objeções',
       url: '/events/1003',
       date: 'Dec 31, 2024',
       time: '8 PM',

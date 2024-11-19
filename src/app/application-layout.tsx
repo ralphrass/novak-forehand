@@ -99,7 +99,7 @@ export function ApplicationLayout({
             <Dropdown>
               <DropdownButton as={SidebarItem}>
                 <Avatar src="/teams/catalyst.svg" />
-                <SidebarLabel>Catalyst</SidebarLabel>
+                <SidebarLabel>Novak</SidebarLabel>
                 <ChevronDownIcon />
               </DropdownButton>
               <DropdownMenu className="min-w-80 lg:min-w-64" anchor="bottom start">
@@ -110,7 +110,7 @@ export function ApplicationLayout({
                 <DropdownDivider />
                 <DropdownItem href="#">
                   <Avatar slot="icon" src="/teams/catalyst.svg" />
-                  <DropdownLabel>Catalyst</DropdownLabel>
+                  <DropdownLabel>Novak</DropdownLabel>
                 </DropdownItem>
                 <DropdownItem href="#">
                   <Avatar slot="icon" initials="BE" className="bg-purple-500 text-white" />
@@ -133,19 +133,19 @@ export function ApplicationLayout({
               </SidebarItem>
               <SidebarItem href="/events" current={pathname.startsWith('/events')}>
                 <Square2StackIcon />
-                <SidebarLabel>Events</SidebarLabel>
+                <SidebarLabel>Documentos personalizados</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/orders" current={pathname.startsWith('/orders')}>
                 <TicketIcon />
-                <SidebarLabel>Orders</SidebarLabel>
+                <SidebarLabel>Recomendações</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/settings" current={pathname.startsWith('/settings')}>
                 <Cog6ToothIcon />
-                <SidebarLabel>Settings</SidebarLabel>
+                <SidebarLabel>Configurações</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/send-message" current={pathname.startsWith('/send-message')}>
                 <ChatBubbleLeftIcon />
-                <SidebarLabel>Send Message</SidebarLabel>
+                <SidebarLabel>Assistente de Conversa</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
 
@@ -163,11 +163,11 @@ export function ApplicationLayout({
             <SidebarSection>
               <SidebarItem href="#">
                 <QuestionMarkCircleIcon />
-                <SidebarLabel>Support</SidebarLabel>
+                <SidebarLabel>Suporte</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="#">
                 <SparklesIcon />
-                <SidebarLabel>Changelog</SidebarLabel>
+                <SidebarLabel>Informações gerais</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
           </SidebarBody>
