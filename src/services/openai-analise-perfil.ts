@@ -1,37 +1,21 @@
-const AZURE_OPENAI_ENDPOINT =
-  'https://foreman-openai.openai.azure.com/openai/deployments/gpt-4o-foreman/chat/completions?api-version=2024-08-01-preview';
+const AZURE_OPENAI_ENDPOINT = 'https://foreman-openai.openai.azure.com/openai/deployments/gpt-4o-foreman/chat/completions?api-version=2024-08-01-preview';
 const AZURE_OPENAI_KEY = process.env.NEXT_PUBLIC_AZURE_OPENAI_KEY;
 
-interface Message {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
+interface ClientProfile {
+  age: string;
+  occupation: string;
+  income: string;
+  familyStatus: string;
+  currentInsurance: string;
+  interests: string;
+  painPoints: string;
+  decisionTriggers: string;
 }
 
-interface InsuranceAnalysisResponse {
-  clientProfile: {
-    summary: string;
-    keyCharacteristics: string[];
-  };
-  approachStrategy: {
-    mainPoints: string[];
-    toneSuggestion: string;
-    valueProposition: string;
-  };
-  productRecommendations: {
-    primary: string;
-    additional: string[];
-    justification: string;
-  };
-  communicationTips: {
-    doList: string[];
-    avoidList: string[];
-  };
-}
+export async function analyzeInsuranceProfile(profile: ClientProfile) {
+  const systemPrompt = `Você é um especialista em vendas de seguros com vasta experiência em análise de perfil de clientes e desenvolvimento de estratégias de abordagem personalizadas. 
 
-export async function analyzeInsuranceProfile(
-  question: string
-): Promise<InsuranceAnalysisResponse> {
-  const systemPrompt = `Você é um especialista em vendas de seguros com vasta experiência em análise de perfil de clientes e desenvolvimento de estratégias de abordagem personalizadas. Analise os dados do cliente e forneça uma resposta estruturada no seguinte formato JSON:
+Analise os dados do cliente e forneça uma resposta estruturada no seguinte formato JSON:
 
 {
   "clientProfile": {
@@ -56,6 +40,16 @@ export async function analyzeInsuranceProfile(
 
 Mantenha o foco em uma abordagem consultiva e ética, priorizando as necessidades reais do cliente.`;
 
+  const userPrompt = `Analise o seguinte perfil de cliente:
+    Idade: ${profile.age}
+    Ocupação: ${profile.occupation}
+    Renda: ${profile.income}
+    Status Familiar: ${profile.familyStatus}
+    Seguro Atual: ${profile.currentInsurance}
+    Interesses: ${profile.interests}
+    Pontos de Dor: ${profile.painPoints}
+    Gatilhos de Decisão: ${profile.decisionTriggers}`;
+
   try {
     const response = await fetch(AZURE_OPENAI_ENDPOINT, {
       method: 'POST',
@@ -67,31 +61,26 @@ Mantenha o foco em uma abordagem consultiva e ética, priorizando as necessidade
         messages: [
           {
             role: 'system',
-            content: systemPrompt,
+            content: systemPrompt
           },
           {
             role: 'user',
-            content: question,
-          },
+            content: userPrompt
+          }
         ],
         temperature: 0.7,
-        max_tokens: 1000,
-      }),
+        max_tokens: 1000
+      })
     });
 
     if (!response.ok) {
-      throw new Error('Falha na consulta ao assistente');
+      throw new Error('Falha na chamada à API');
     }
 
-    const data = await response.json();
-    const content = data.choices[0].message.content;
+    return response;
 
-    // Parseando a resposta JSON do modelo
-    const parsedResponse: InsuranceAnalysisResponse = JSON.parse(content);
-
-    return parsedResponse;
   } catch (error) {
-    console.error('Erro ao consultar assistente:', error);
+    console.error('Erro ao analisar perfil:', error);
     throw error;
   }
 }
