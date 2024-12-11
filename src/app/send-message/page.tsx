@@ -391,51 +391,51 @@ export default function SalesContextPage() {
         {response && (
           <div className="bg-white shadow rounded p-6 space-y-6">
             <div className="border-b pb-4">
-              <Heading level={3} className="mb-4">Análise da Pergunta</Heading>
+              <Heading level={3} className="mb-4 text-gray-900">Análise da Pergunta</Heading>
               <div className="grid gap-4">
                 <div>
-                  <Text className="font-medium">Intenção Principal:</Text>
-                  <Text className="text-gray-700">{response.analysis.primary_intent}</Text>
+                  <Text className="font-medium text-gray-900">Intenção Principal:</Text>
+                  <Text className="text-gray-900">{response.analysis.primary_intent}</Text>
                 </div>
                 <div>
-                  <Text className="font-medium">Nível de Conhecimento:</Text>
-                  <Text className="text-gray-700">{response.analysis.knowledge_level}</Text>
+                  <Text className="font-medium text-gray-900">Nível de Conhecimento:</Text>
+                  <Text className="text-gray-900">{response.analysis.knowledge_level}</Text>
                 </div>
                 <div>
-                  <Text className="font-medium">Tom Emocional:</Text>
-                  <Text className="text-gray-700">{response.analysis.emotional_tone}</Text>
+                  <Text className="font-medium text-gray-900">Tom Emocional:</Text>
+                  <Text className="text-gray-900">{response.analysis.emotional_tone}</Text>
                 </div>
                 <div>
-                  <Text className="font-medium">Principais Preocupações:</Text>
+                  <Text className="font-medium text-gray-900">Principais Preocupações:</Text>
                   <ul className="list-disc pl-4">
                     {response.analysis.key_concerns?.map((concern, index) => (
-                      <li key={index} className="text-gray-700">{concern}</li>
+                      <li key={index} className="text-gray-900">{concern}</li>
                     ))}
                   </ul>
                 </div>
                 <div>
-                  <Text className="font-medium">Sinais de Compra:</Text>
-                  <Text className="text-gray-700">{response.analysis.buying_signals}</Text>
+                  <Text className="font-medium text-gray-900">Sinais de Compra:</Text>
+                  <Text className="text-gray-900">{response.analysis.buying_signals}</Text>
                 </div>
               </div>
             </div>
 
             <div className="border-b pb-4">
-              <Heading level={3} className="mb-4">Resposta Sugerida</Heading>
+              <Heading level={3} className="mb-4 text-gray-900">Resposta Sugerida</Heading>
               <div className="bg-gray-50 p-4 rounded">
-                <Text className="whitespace-pre-wrap text-gray-700">{response.response}</Text>
+                <Text className="whitespace-pre-wrap text-gray-900">{response.response}</Text>
               </div>
             </div>
 
             <div>
-              <Heading level={3} className="mb-4">Próximas Ações</Heading>
+              <Heading level={3} className="mb-4 text-gray-900">Próximas Ações</Heading>
               <ul className="space-y-2">
                 {response.suggested_actions.map((action, index) => (
                   <li key={index} className="flex items-start gap-2">
                     <div className="mt-1 min-w-4">
                       <div className="w-2 h-2 bg-blue-500 rounded-full" />
                     </div>
-                    <Text className="text-gray-700">{action}</Text>
+                    <Text className="text-gray-900">{action}</Text>
                   </li>
                 ))}
               </ul>

@@ -131,17 +131,21 @@ export function ApplicationLayout({
                 <HomeIcon />
                 <SidebarLabel>Home</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/events" current={pathname.startsWith('/events')}>
+              {/* <SidebarItem href="/events" current={pathname.startsWith('/events')}>
                 <Square2StackIcon />
                 <SidebarLabel>Documentos personalizados</SidebarLabel>
+              </SidebarItem> */}
+              <SidebarItem href="/proposta" current={pathname.startsWith('/proposta')}>
+                <Square2StackIcon />
+                <SidebarLabel>Gerador de Proposta</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/orders" current={pathname.startsWith('/orders')}>
+              <SidebarItem href="/assistente" current={pathname.startsWith('/assistente')}>
                 <TicketIcon />
-                <SidebarLabel>Recomendações</SidebarLabel>
+                <SidebarLabel>Assistente de Condições Gerais</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/settings" current={pathname.startsWith('/settings')}>
+              <SidebarItem href="/analise-perfil" current={pathname.startsWith('/analise-perfil')}>
                 <Cog6ToothIcon />
-                <SidebarLabel>Configurações</SidebarLabel>
+                <SidebarLabel>Análise de Perfil</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/send-message" current={pathname.startsWith('/send-message')}>
                 <ChatBubbleLeftIcon />
