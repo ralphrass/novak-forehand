@@ -72,19 +72,13 @@ export default function ProfileAnalyzerPage() {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      
-      // receber retorno de analyzeInsuranceProfile
-
-      if (!response.ok) throw new Error('Falha na análise');
-
+      const response = await analyzeInsuranceProfile(profile);
       const data = await response.json();
-      // Parse e estruturação da resposta
       const parsedContent = parseOpenAIResponse(data.choices[0].message.content);
       setAnalysis(parsedContent);
-      // ... implementar parser baseado no retorno da API
-      
     } catch (error) {
       console.error('Erro:', error);
+      // Você pode adicionar um toast ou alert aqui para mostrar o erro ao usuário
     } finally {
       setIsLoading(false);
     }

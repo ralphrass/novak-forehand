@@ -127,13 +127,21 @@ export function ApplicationLayout({
 
           <SidebarBody>
             <SidebarSection>
-              <SidebarItem href="/" current={pathname === '/'}>
+              {/* <SidebarItem href="/" current={pathname === '/'}>
                 <HomeIcon />
                 <SidebarLabel>Home</SidebarLabel>
-              </SidebarItem>
+              </SidebarItem> */}
               {/* <SidebarItem href="/events" current={pathname.startsWith('/events')}>
                 <Square2StackIcon />
                 <SidebarLabel>Documentos personalizados</SidebarLabel>
+              </SidebarItem> */}
+              <SidebarItem href="/" current={pathname === '/'}>
+                <HomeIcon />
+                <SidebarLabel>Dashboard</SidebarLabel>
+              </SidebarItem>
+              {/* <SidebarItem href="/dashboard" current={pathname.startsWith('/dashboard')}>
+                <HomeIcon />
+                <SidebarLabel>Dashboard</SidebarLabel>
               </SidebarItem> */}
               <SidebarItem href="/proposta" current={pathname.startsWith('/proposta')}>
                 <Square2StackIcon />
@@ -151,9 +159,17 @@ export function ApplicationLayout({
                 <ChatBubbleLeftIcon />
                 <SidebarLabel>Assistente de Conversa</SidebarLabel>
               </SidebarItem>
+              <SidebarItem href="/argumentacao" current={pathname.startsWith('/argumentacao')}>
+                <ChatBubbleLeftIcon />
+                <SidebarLabel>Argumentação</SidebarLabel>
+              </SidebarItem>
+              <SidebarItem href="/duvidas" current={pathname.startsWith('/duvidas')}>
+                <ChatBubbleLeftIcon />
+                <SidebarLabel>Dúvidas Gerais</SidebarLabel>
+              </SidebarItem>
             </SidebarSection>
 
-            <SidebarSection className="max-lg:hidden">
+            {/* <SidebarSection className="max-lg:hidden">
               <SidebarHeading>Upcoming Events</SidebarHeading>
               {events.map((event) => (
                 <SidebarItem key={event.id} href={event.url}>
@@ -162,7 +178,7 @@ export function ApplicationLayout({
               ))}
             </SidebarSection>
 
-            <SidebarSpacer />
+            <SidebarSpacer /> */}
 
             <SidebarSection>
               <SidebarItem href="#">
