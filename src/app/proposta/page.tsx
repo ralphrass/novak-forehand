@@ -267,7 +267,9 @@ export default function PropostasPage() {
               <Text className="font-bold mb-2">Investimento Anual: {proposalData.payment.annualPremium}</Text>
               <Text className="mb-2">{proposalData.payment.paymentOptions.debit}</Text>
               <Text className="mb-2">{proposalData.payment.paymentOptions.creditCard}</Text>
-              <Text>{proposalData.payment.paymentOptions.porto}</Text>
+              {proposalData.payment.paymentOptions.porto && (
+                <Text>{proposalData.payment.paymentOptions.porto}</Text>
+              )}
             </div>
           </div>
 
@@ -310,17 +312,17 @@ export default function PropostasPage() {
 
   return (
     <div className="container mx-auto p-6">
-      {showPDF ? (
+      {showPDF && proposalData ? (
         <div className="fixed inset-0 bg-white z-50">
           <div className="absolute top-4 right-4 flex gap-2">
             <Button 
-              variant="outline" 
+              className="bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200"
               onClick={handleReset}
             >
               Novo Upload
             </Button>
             <Button 
-              variant="outline" 
+              className="bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200"
               onClick={() => setShowPDF(false)}
             >
               Voltar para Proposta
@@ -395,13 +397,13 @@ export default function PropostasPage() {
             <>
               <div className="flex gap-2 mb-4">
                 <Button 
-                  variant="outline" 
+                  className="bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200"
                   onClick={handleReset}
                 >
                   Novo Upload
                 </Button>
                 <Button 
-                  variant="outline" 
+                  className="bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200"
                   onClick={() => setShowProposal(false)}
                 >
                   Voltar

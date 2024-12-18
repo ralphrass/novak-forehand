@@ -11,6 +11,7 @@ export default function SalesResponsePage() {
   const [formData, setFormData] = useState({
     productName: '',
     productPriceRange: '',
+    productEditions: '',
     productFeatures: '',
     communicationTone: '',
     firstContact: true,
@@ -21,6 +22,7 @@ export default function SalesResponsePage() {
     customerIndustry: '',
     customerSize: '',
     customerQuestion: '',
+    priceDiscussion: '',
   });
 
   const [isLoading, setIsLoading] = useState(false);

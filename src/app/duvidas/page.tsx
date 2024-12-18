@@ -10,6 +10,7 @@ import { generateAnswerForConsultant, parseOpenAIResponse } from '@/services/ope
 interface QuestionResponse {
   resposta_direta: string;
   detalhamento: string[];
+  scripts_prontos?: string[]; 
   exemplos_praticos: string[];
   pontos_atencao: string[];
   referencias_uteis: string[];
@@ -81,10 +82,8 @@ export default function DuvidasGeraisPage() {
               <div className="flex justify-between items-start">
                 <Text className="text-zinc-700">{script}</Text>
                 <Button
-                  variant="outline"
-                  size="sm"
                   onClick={() => navigator.clipboard.writeText(script)}
-                  className="ml-4"
+                  className="ml-4 px-3 py-1 text-sm bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200 rounded-md"
                 >
                   Copiar
                 </Button>

@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Font, Image } from '@react-pdf/renderer';
+import { Page, View, Document, StyleSheet, Font, Image } from '@react-pdf/renderer';
 import { Button } from '@/components/button';
 import { Heading } from '@/components/heading';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
+import { Text } from '@/components/text';  // Seu componente Text customizado
 
 // Registrando a fonte Arial (você precisa ter o arquivo da fonte)
 Font.register({

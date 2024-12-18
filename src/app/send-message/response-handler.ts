@@ -1,3 +1,11 @@
+interface Analysis {
+  primary_intent: string;
+  knowledge_level: string;
+  emotional_tone: string;
+  key_concerns: string[];
+  buying_signals: string;
+}
+
 interface ParsedResponse {
     analysis: {
       primary_intent: string;
@@ -9,6 +17,7 @@ interface ParsedResponse {
     response: string;
     suggested_actions: string[];
   }
+  
   
   export function parseApiResponse(apiResponse: any): ParsedResponse {
     try {
@@ -31,7 +40,13 @@ interface ParsedResponse {
     } catch (error) {
       console.error('Error parsing response:', error);
       return {
-        analysis: {},
+        analysis: {
+          primary_intent: '',
+          knowledge_level: '',
+          emotional_tone: '',
+          key_concerns: [],
+          buying_signals: ''
+        },
         response: apiResponse.response || '',
         suggested_actions: []
       };

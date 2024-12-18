@@ -1,5 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import { InsuranceProposal } from '@/types/insurance';
 
 // Registrando a fonte Arial
 Font.register({
@@ -108,11 +109,13 @@ interface PDFTemplateProps {
         {/* Header com Logos */}
         <View style={styles.header}>
           <View style={styles.logoContainer}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
             <Image 
               src="/images/logo-fante.png" 
               style={styles.logo}
             />
           </View>
+          {/* eslint-disable-next-line jsx-a11y/alt-text */}
           <Image 
             src="/images/icon-car.png" 
             style={[styles.logo, { width: 80 }]}

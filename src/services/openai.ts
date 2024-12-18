@@ -63,8 +63,9 @@ Sua resposta deve estar em português e ser objetiva.`;
     
     // Processando tópicos relacionados
     const topicsSection = sections[2].replace('3) **Tópicos Relacionados:**\n', '');
-    const topicsLines = topicsSection.split('\n   - ').filter(line => line.trim());
-    const topics = topicsLines.map(line => {
+    const topicsLines = topicsSection.split('\n   - ').filter((line: string) => line.trim());
+
+    const topics = topicsLines.map((line: string) => {
       const [title, ...descParts] = line.split(':');
       return {
         title: title.replace('**', '').replace('**', '').trim(),

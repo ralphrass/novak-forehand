@@ -7,6 +7,7 @@ interface ReactFormData {
   productName: string;
   productPriceRange: string;
   productFeatures: string;
+  productEditions: string;
   communicationTone: string;
   firstContact: boolean;
   previousInteractions: string;
@@ -16,34 +17,62 @@ interface ReactFormData {
   customerIndustry: string;
   customerSize: string;
   customerQuestion: string;
+  priceDiscussion: string;
 }
 
-function adaptFormData(reactData: ReactFormData): FormData {
+interface AssistantFormData {
+  customer_question: string;
+  product_catalog: {
+    name: string;
+    price_range: string;
+    features: string;
+    editions: string;
+  };
+  company_guidelines: {
+    tone: string;
+    priceDiscussion: string;
+  };
+  customer_history: {
+    first_contact: boolean;
+    previous_interactions: string;
+  };
+  conversation_context: {
+    channel: string;
+    stage: string;
+  };
+  customer_profile: {
+    segment: string;
+    industry: string;
+    size: string;
+  };
+}
+
+function adaptFormData(reactData: ReactFormData): AssistantFormData {
   return {
     customer_question: reactData.customerQuestion,
     product_catalog: {
       name: reactData.productName,
       price_range: reactData.productPriceRange,
       features: reactData.productFeatures,
-      editions: '', // Preencher com valor padrão ou adicionar ao formulário
+      editions: reactData.productEditions
     },
     company_guidelines: {
       tone: reactData.communicationTone,
-      price_discussion: '', // Preencher com valor padrão ou adicionar ao formulário
+      priceDiscussion: reactData.priceDiscussion
     },
     customer_history: {
       first_contact: reactData.firstContact,
-      previous_interactions: reactData.previousInteractions,
+      previous_interactions: reactData.previousInteractions
     },
     conversation_context: {
       channel: reactData.salesChannel,
-      stage: reactData.salesStage,
+      stage: reactData.salesStage
     },
     customer_profile: {
       segment: reactData.customerSegment,
       industry: reactData.customerIndustry,
-      size: reactData.customerSize,
-    },
+      size: reactData.customerSize
+    }
   };
 }
 
@@ -99,7 +128,7 @@ Produto:
   Edições: ${formData.product_catalog.editions}
 Diretrizes da Empresa:
   Tom de Comunicação: ${formData.company_guidelines.tone}
-  Discussão de Preços: ${formData.company_guidelines.price_discussion}
+  Discussão de Preços: ${formData.company_guidelines.priceDiscussion}
 Histórico do Cliente:
   Primeiro Contato: ${formData.customer_history.first_contact ? "Sim" : "Não"}
   Interações Anteriores: ${formData.customer_history.previous_interactions}
