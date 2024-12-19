@@ -1,4 +1,4 @@
-const AZURE_OPENAI_ENDPOINT = 'https://foreman-openai.openai.azure.com/openai/deployments/gpt-4o-foreman/chat/completions?api-version=2024-08-01-preview';
+const AZURE_OPENAI_ENDPOINT = process.env.NEXT_PUBLIC_AZURE_OPENAI_ENDPOINT + '?api-version=2024-08-01-preview';
 const AZURE_OPENAI_KEY = process.env.NEXT_PUBLIC_AZURE_OPENAI_KEY;
 
 interface Message {
