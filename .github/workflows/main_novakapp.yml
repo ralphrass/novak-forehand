@@ -23,28 +23,31 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Debug directories
-        run: |
-          pwd
-          echo "Listando diretórios:"
-          ls -la
-          echo "Verificando componentes:"
-          ls -la src/components/
-
       - name: npm install and build
         run: |
           npm ci
           npm run build
-
-      - name: Prepare zip
+          
+      - name: List build output
         run: |
-          echo "Conteúdo antes do zip:"
+          echo "Build output:"
           ls -la
-          echo "Conteúdo de src/components:"
-          ls -la src/components/
-          zip release.zip ./* .next -r
-          echo "Verificando zip:"
-          ls -lh release.zip
+          echo "Next build:"
+          ls -la .next
+          
+      - name: Create deployment package
+        run: |
+          # Criar diretório de produção
+          mkdir -p production
+          # Copiar arquivos necessários
+          cp -r .next production/
+          cp -r public production/
+          cp package.json production/
+          cp package-lock.json production/
+          cp next.config.mjs production/
+          # Zip para deploy
+          cd production
+          zip -r ../release.zip .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
@@ -67,13 +70,13 @@ jobs:
         with:
           name: node-app
 
-      - name: Debug deployment files
+      - name: Extract package
         run: |
+          mkdir output
+          mv release.zip output/
+          cd output
           unzip release.zip
-          echo "Conteúdo após unzip:"
           ls -la
-          echo "Verificando components:"
-          ls -la src/components/
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -88,4 +91,4 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           slot-name: 'Production'
-          package: .
+          package: output
