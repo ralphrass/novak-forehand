@@ -42,6 +42,7 @@ jobs:
           # Copiar arquivos necessários
           cp -r .next production/
           cp -r public production/
+          cp -r src/* production/ 
           cp package.json production/
           cp package-lock.json production/
           cp next.config.mjs production/
