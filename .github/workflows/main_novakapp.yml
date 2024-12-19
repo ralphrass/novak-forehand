@@ -37,16 +37,21 @@ jobs:
           
       - name: Create deployment package
         run: |
-          # Criar diretório de produção
+          echo "Creating production package..."
+          # Copiar apenas o necessário
           mkdir -p production
-          # Copiar arquivos necessários
           cp -r .next production/
           cp -r public production/
-          cp -r src/* production/ 
           cp package.json production/
           cp package-lock.json production/
           cp next.config.mjs production/
-          # Zip para deploy
+          cp web.config production/
+
+          # Debug da estrutura
+          echo "Production structure:"
+          ls -R production/
+          
+          # Criar zip
           cd production
           zip -r ../release.zip .
 
