@@ -39,14 +39,13 @@ jobs:
         run: |
           echo "Creating production package..."
           mkdir -p production
-          cp -r src production/src
+          cp -r src production/src  # Inclui src/
           cp -r .next production/.next
           cp -r public production/public
           cp -r node_modules production/node_modules
           cp package.json production/
           cp package-lock.json production/
           cp next.config.mjs production/
-          cp web.config production/
 
           # Debug da estrutura
           echo "Production structure:"
@@ -84,7 +83,7 @@ jobs:
           cd output
           unzip release.zip
           ls -la
-      
+          
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -99,4 +98,4 @@ jobs:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           slot-name: 'Production'
           package: output
-          deployment-root-directory: src
+          deployment-root-directory: src  # Adicionado
