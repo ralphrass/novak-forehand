@@ -6,10 +6,6 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  AZURE_WEBAPP_NAME: novakapp
-  NODE_VERSION: '18.x'
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,43 +16,16 @@ jobs:
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          node-version: '18.x'
 
-      - name: npm install and build
+      - name: npm install, build, and test
         run: |
-          npm ci
-          npm run build
-          
-      - name: List build output
-        run: |
-          echo "Build output:"
-          ls -la
-          echo "Next build:"
-          ls -la .next
-          
-      - name: Create deployment package
-        run: |
-          echo "Preparing production package..."
-          mkdir -p production
+          npm install
+          npm run build --if-present
+          npm run test --if-present
 
-          # Move os arquivos necessários para a raiz da produção
-          mv src/* production/
-          mv .next production/.next
-          mv public production/public
-          mv node_modules production/node_modules
-          cp package.json production/
-          cp package-lock.json production/
-          cp next.config.mjs production/
-
-          # Verificar a estrutura final
-          echo "Production structure:"
-          ls -R production/
-
-          # Criar o zip para deploy
-          cd production
-          zip -r ../release.zip .
-
+      - name: Zip artifact for deployment
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -71,7 +40,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write
+      id-token: write # This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -79,27 +48,20 @@ jobs:
         with:
           name: node-app
 
-      - name: Extract package
-        run: |
-          mkdir output
-          mv release.zip output/
-          cd output
-          unzip release.zip
-          ls -la
-          
+      - name: Unzip artifact for deployment
+        run: unzip release.zip
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1B3085581E234F85B7AA313DCF7B040B }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_21115387616C434DB543411BAF6A42DD }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_07497E24801A4DC1B4BC29DE379F9B0F }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          app-name: 'novakapp'
           slot-name: 'Production'
-          package: output
-          clean: true  # Força a limpeza antes do deploy
-
+          package: .
