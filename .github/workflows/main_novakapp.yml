@@ -37,23 +37,26 @@ jobs:
           
       - name: Create deployment package
         run: |
-          echo "Creating production package..."
+          echo "Preparing production package..."
           mkdir -p production
-          cp -r src production/src  # Inclui src/
-          cp -r .next production/.next
-          cp -r public production/public
-          cp -r node_modules production/node_modules
+
+          # Move os arquivos necessários para a raiz da produção
+          mv src/* production/
+          mv .next production/.next
+          mv public production/public
+          mv node_modules production/node_modules
           cp package.json production/
           cp package-lock.json production/
           cp next.config.mjs production/
 
-          # Debug da estrutura
+          # Verificar a estrutura final
           echo "Production structure:"
           ls -R production/
-          
-          # Criar zip
+
+          # Criar o zip para deploy
           cd production
           zip -r ../release.zip .
+
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -98,4 +101,5 @@ jobs:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           slot-name: 'Production'
           package: output
-          deployment-root-directory: src  # Adicionado
+          clean: true  # Força a limpeza antes do deploy
+
