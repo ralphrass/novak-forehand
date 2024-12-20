@@ -38,20 +38,20 @@ jobs:
       - name: Create deployment package
         run: |
           echo "Creating production package..."
-          mkdir -p production
-          cp -r .next production/
+          mkdir -p production/.next
+          # Copiar o build do Next.js
+          cp -r .next/* production/.next/
+          # Copiar outros arquivos necessários
+          cp -r node_modules production/
           cp -r public production/
-          cp -r node_modules production/  # Importante: incluir node_modules
           cp package.json production/
           cp package-lock.json production/
           cp next.config.mjs production/
-          cp web.config production/
-
-          # Debug da estrutura
-          echo "Production structure:"
-          ls -R production/
           
-          # Criar zip
+          echo "Production structure:"
+          ls -la production/
+          ls -la production/.next/
+          
           cd production
           zip -r ../release.zip .
 
