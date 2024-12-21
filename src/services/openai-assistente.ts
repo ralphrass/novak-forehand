@@ -1,5 +1,12 @@
-const AZURE_OPENAI_ENDPOINT = process.env.NEXT_PUBLIC_AZURE_OPENAI_ENDPOINT + '?api-version=2024-08-01-preview';
+const baseEndpoint = process.env.NEXT_PUBLIC_AZURE_OPENAI_ENDPOINT || '';
 
+const getEndpointWithVersion = (endpoint: string) => {
+  // Remove qualquer api-version existente
+  const baseUrl = endpoint.split('?')[0];
+  return `${baseUrl}?api-version=2024-08-01-preview`;
+};
+
+const AZURE_OPENAI_ENDPOINT = getEndpointWithVersion(baseEndpoint);
 const AZURE_OPENAI_KEY = process.env.NEXT_PUBLIC_AZURE_OPENAI_KEY;
 
 interface ReactFormData {

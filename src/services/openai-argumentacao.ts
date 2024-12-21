@@ -1,10 +1,16 @@
 import { ArgumentationData, ArgumentationResponse } from '@/types/argumentation';
 
 
-  const AZURE_OPENAI_ENDPOINT = process.env.NEXT_PUBLIC_AZURE_OPENAI_ENDPOINT + '?api-version=2024-08-01-preview';
-  
+const baseEndpoint = process.env.NEXT_PUBLIC_AZURE_OPENAI_ENDPOINT || '';
 
-  const AZURE_OPENAI_KEY = process.env.NEXT_PUBLIC_AZURE_OPENAI_KEY;
+const getEndpointWithVersion = (endpoint: string) => {
+  // Remove qualquer api-version existente
+  const baseUrl = endpoint.split('?')[0];
+  return `${baseUrl}?api-version=2024-08-01-preview`;
+};
+
+const AZURE_OPENAI_ENDPOINT = getEndpointWithVersion(baseEndpoint);
+const AZURE_OPENAI_KEY = process.env.NEXT_PUBLIC_AZURE_OPENAI_KEY;
   
   export async function generateValueArgumentation(data: ArgumentationData) {
     const systemPrompt = `Você é um especialista em vendas de seguros com vasta experiência em lidar com objeções e criar argumentos persuasivos. Dada uma objeção do cliente, forneça uma resposta estruturada focando em argumentação de valor e superação de objeções.
