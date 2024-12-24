@@ -1,5 +1,6 @@
 'use client'
 
+import { signOut, useSession } from 'next-auth/react'
 import { Avatar } from '@/components/avatar'
 import {
   Dropdown,
@@ -45,11 +46,15 @@ import {
 import { usePathname } from 'next/navigation'
 
 function AccountDropdownMenu({ anchor }: { anchor: 'top start' | 'bottom end' }) {
+  const { data: session } = useSession()
+
   return (
     <DropdownMenu className="min-w-64" anchor={anchor}>
       <DropdownItem href="#">
         <UserCircleIcon />
-        <DropdownLabel>My account</DropdownLabel>
+        <DropdownLabel>
+          {session?.user?.name || session?.user?.email || 'My account'}
+        </DropdownLabel>
       </DropdownItem>
       <DropdownDivider />
       <DropdownItem href="#">
@@ -61,7 +66,10 @@ function AccountDropdownMenu({ anchor }: { anchor: 'top start' | 'bottom end' })
         <DropdownLabel>Share feedback</DropdownLabel>
       </DropdownItem>
       <DropdownDivider />
-      <DropdownItem href="#">
+      <DropdownItem 
+        onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+        className="cursor-pointer"
+      >
         <ArrowRightStartOnRectangleIcon />
         <DropdownLabel>Sign out</DropdownLabel>
       </DropdownItem>
