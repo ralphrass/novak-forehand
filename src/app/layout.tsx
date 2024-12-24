@@ -1,8 +1,6 @@
-import { getEvents } from '@/data'
 import '@/styles/tailwind.css'
 import type { Metadata } from 'next'
-import type React from 'react'
-import { ApplicationLayout } from './application-layout'
+import { AuthProvider } from '@/components/providers/auth-provider'
 
 export const metadata: Metadata = {
   title: {
@@ -12,20 +10,24 @@ export const metadata: Metadata = {
   description: '',
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  let events = await getEvents()
-
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html
       lang="en"
-      className="text-zinc-950 antialiased lg:bg-zinc-100 dark:bg-zinc-900 dark:text-white dark:lg:bg-zinc-950"
+      className="text-zinc-950 antialiased"
     >
       <head>
         <link rel="preconnect" href="https://rsms.me/" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
       </head>
       <body>
-        <ApplicationLayout events={events}>{children}</ApplicationLayout>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )
