@@ -11,6 +11,9 @@ import { PDFTemplate } from '@/components/insurance-pdf-template';
 import { Input } from '@/components/input';
 import * as pdfjsLib from 'pdfjs-dist';
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf-worker.js';
+
+
 const pdfjsWorker = `
 importScripts('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js');`;
 
