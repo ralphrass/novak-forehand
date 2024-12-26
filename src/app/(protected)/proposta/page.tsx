@@ -7,6 +7,70 @@ import { Text } from '@/components/text';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
 import { PDFViewer } from '@react-pdf/renderer';
 import { PDFTemplate } from '@/components/insurance-pdf-template';
+// No topo do arquivo, junto com os outros imports
+import { Input } from '@/components/input';
+import * as pdfjsLib from 'pdfjs-dist';
+
+const pdfjsWorker = `
+importScripts('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js');`;
+
+const setupPdfWorker = async () => {
+  if (typeof window === 'undefined') return; // Verifica se está no browser
+  
+  // Criar um blob com o código do worker
+  const blob = new Blob([pdfjsWorker], { type: 'text/javascript' });
+  const workerUrl = URL.createObjectURL(blob);
+  pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+};
+
+
+// Novas interfaces para dados com validação
+interface ExtractedField<T> {
+  value: T;
+  confidence: number;
+  pdfContext: string;
+}
+
+interface ExtractedInsuranceData {
+  vehicleData: {
+    insuredName: ExtractedField<string>;
+    vehicle: {
+      makeModelYear: ExtractedField<string>;
+      plate: ExtractedField<string>;
+      fipeCode: ExtractedField<string>;
+    };
+  };
+  coverage: {
+    comprehensive: ExtractedField<string>;
+    deductible: ExtractedField<string>;
+    thirdPartyLiability: {
+      propertyDamage: ExtractedField<string>;
+      bodilyInjury: ExtractedField<string>;
+    };
+    moralDamages: ExtractedField<string>;
+    greenCard: ExtractedField<string>;
+    roadside: ExtractedField<string>;
+    rentalCar: ExtractedField<string>;
+    glass: ExtractedField<string>;
+  };
+  payment: {
+    annualPremium: ExtractedField<string>;
+    paymentOptions: ExtractedField<{
+      debit: string;
+      creditCard: string;
+    }>;
+  };
+  mainDriver: {
+    name: ExtractedField<string>;
+    birthDate: ExtractedField<string>;
+    maritalStatus: ExtractedField<string>;
+    youngDriverCoverage: ExtractedField<string>;
+    garage: ExtractedField<string>;
+    zipCode: ExtractedField<string>;
+    vehicleUse: ExtractedField<string>;
+  };
+}
+
 
 interface VehicleData {
   insuredName: string;
@@ -86,6 +150,9 @@ export default function PropostasPage() {
   const [showProposal, setShowProposal] = useState(false);
   const [showPDF, setShowPDF] = useState(false);
   const [proposalData, setProposalData] = useState<InsuranceProposal | null>(null);
+  const [extractedData, setExtractedData] = useState<ExtractedInsuranceData | null>(null);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  
 
   const handleReset = () => {
     setFile(null);
@@ -165,12 +232,223 @@ export default function PropostasPage() {
     }
   };
 
+  // Padrões de extração ajustados para o PDF da Alfa
+  const patterns = {
+    // Dados do Veículo
+    insuredName: /Proponente:\s*(.*?)\s*Corretor:/,
+    makeModelYear: /Veículo:\s*(.*?)\s*Ano:/,
+    plate: /Placa:\s*([A-Z0-9]{7})/,
+    fipeCode: /Cód\.\s*FIPE:\s*(\d+-\d)/,
+    
+    // Coberturas
+    comprehensive: /Auto\s*-\s*Casco\s*(100\s*%[^R]*)/,
+    deductible: /Franquia[^R]*R\$\s*([\d,.]+)/,
+    danosMateriais: /RCFV\s*-\s*Danos\s*Materiais\s*(\d{1,3}\.?\d{3},\d{2})/,
+    danosCorporais: /RCFV\s*-\s*Danos\s*Corporais\s*(\d{1,3}\.?\d{3},\d{2})/,
+    danosMorais: /RCFV\s*-\s*Danos\s*Morais[^R]*(\d{1,3}\.?\d{3},\d{2})/,
+    
+    // Assistências
+    assistance24h: /Assistência\s*-\s*24\s*horas\s*(.*?)(?=\d)/,
+    carroReserva: /Assistência\s*-\s*Carro\s*Reserva\s*(.*?)(?=\d)/,
+    vidros: /Assistência\s*-\s*Vidros\s*(.*?)(?=\d)/,
+    
+    // Pagamento
+    valorTotal: /Valor\s*Total.*?Vista:\s*R\$\s*([\d,.]+)/,
+    
+    // Condutor
+    mainDriverName: /Nome\s*do\s*Condutor\s*Principal\s*(.*?)(?=CPF|$)/,
+    birthDate: /Data\s*de\s*Nascimento[^:]*:\s*(\d{2}\/\d{2}\/\d{4})/,
+    maritalStatus: /Estado\s*Civil[^:]*:\s*(.*?)(?=\n|Data)/,
+    garage: /Veículo\s*permanece\s*em\s*garagem.*?Residência\s*(.*?)(?=\n|Veículo)/,
+    cepPernoite: /CEP\s*Pernoite:\s*(\d{5}-\d{3})/,
+    vehicleUse: /Utilização\s*do\s*Veículo\s*(.*?)(?=\n|Deseja)/
+  };
+
+  // Função auxiliar para extrair campos
+  const extractField = (pattern: RegExp, text: string): ExtractedField<string> => {
+    const match = text.match(pattern);
+    if (!match) {
+      return {
+        value: '',
+        confidence: 0,
+        pdfContext: 'Campo não encontrado'
+      };
+    }
+
+    const startIndex = Math.max(0, match.index! - 100);
+    const endIndex = Math.min(text.length, match.index! + match[0].length + 100);
+    const context = text.substring(startIndex, endIndex)
+    .replace(/\s+/g, ' ')
+    .trim();
+
+    // Limpar o valor extraído
+    const value = match[1]
+    .replace(/\s+/g, ' ')
+    .trim();
+
+    // Calcular confiança baseado em alguns fatores
+    const confidence = value.length > 3 ? 0.9 : 0.5;
+
+    return {
+      value: value,
+      confidence: confidence,
+      pdfContext: context
+    };
+  };
+
   const handleProcessPDF = async () => {
+    if (!file) return;
     setIsProcessing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setProposalData(mockProposalData);
-    setShowProposal(true);
-    setIsProcessing(false);
+  
+    try {
+      // Configurar o worker antes de processar
+      await setupPdfWorker();
+
+      // Ler o PDF como array buffer
+      const arrayBuffer = await file.arrayBuffer();
+
+      // Carregar o PDF
+      const loadingTask = pdfjsLib.getDocument({
+        data: new Uint8Array(arrayBuffer),
+        useSystemFonts: true,
+        standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/standard_fonts/`
+      });
+      const pdf = await loadingTask.promise;
+      
+      // Extrair texto de todas as páginas
+      let fullText = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
+        fullText += pageText + '\n';
+      }
+
+      console.log('Texto extraído:', fullText); // Para debug
+  
+      // Extrair dados usando os padrões da Alfa
+      const extracted = {
+        vehicleData: {
+          insuredName: extractField(patterns.insuredName, fullText),
+          vehicle: {
+            makeModelYear: extractField(patterns.makeModelYear, fullText),
+            plate: extractField(patterns.plate, fullText),
+            fipeCode: extractField(patterns.fipeCode, fullText),
+          },
+        },
+        coverage: {
+          comprehensive: extractField(/Compreensiva:\s*(.*?)(?=\n|$)/m, fullText),
+          deductible: extractField(/Franquia Casco[^R]*R\$\s*([\d,.]+)/m, fullText),
+          thirdPartyLiability: {
+            propertyDamage: extractField(/RCF-V Danos Materiais[^R]*R\$\s*([\d,.]+)/m, fullText),
+            bodilyInjury: extractField(/RCF-V.*Corporais[^R]*R\$\s*([\d,.]+)/m, fullText),
+          },
+          moralDamages: extractField(/Danos Morais[^R]*R\$\s*([\d,.]+)/m, fullText),
+          greenCard: extractField(/Carta Verde[^:]*:\s*(.*?)(?=\n|$)/m, fullText),
+          roadside: extractField(/Assistência 24 Horas[^:]*:\s*(.*?)(?=\n|$)/m, fullText),
+          rentalCar: extractField(/Carro Reserva[^:]*:\s*(.*?)(?=\n|$)/m, fullText),
+          glass: extractField(/Vidros[^:]*:\s*(.*?)(?=\n|$)/m, fullText),
+        },
+        payment: {
+          annualPremium: extractField(/Investimento Anual[^R]*R\$\s*([\d,.]+)/m, fullText),
+          paymentOptions: {
+            value: {
+              debit: extractField(/Débito[^:]*:\s*(.*?)(?=\n|$)/m, fullText).value,
+              creditCard: extractField(/Cartão[^:]*:\s*(.*?)(?=\n|$)/m, fullText).value,
+            },
+            confidence: 0.9,
+            pdfContext: 'Opções de pagamento extraídas',
+          },
+        },
+        mainDriver: {
+          name: extractField(/Nome[^:]*:\s*(.*?)(?=\n|$)/m, fullText),
+          birthDate: extractField(/Data\s*nascimento[^:]*:\s*(\d{2}\/\d{2}\/\d{4})/m, fullText),
+          maritalStatus: extractField(/Estado Civil[^:]*:\s*(.*?)(?=\n|$)/m, fullText),
+          youngDriverCoverage: extractField(/Deseja contratar cobertura.*?:\s*(Sim|Não)/m, fullText),
+          garage: extractField(/Garagem[^:]*:\s*(Sim|Não)/m, fullText),
+          zipCode: extractField(/CEP[^:]*:\s*(\d{5}-\d{3})/m, fullText),
+          vehicleUse: extractField(/Uso do veículo[^:]*:\s*(.*?)(?=\n|$)/m, fullText),
+        },
+      };      
+
+      console.log('Dados extraídos:', extracted); // Para debug
+  
+      setExtractedData(extracted);
+  
+      // Converter para o formato da proposta
+      const proposal: InsuranceProposal = {
+        vehicleData: {
+          insuredName: extracted.vehicleData.insuredName.value,
+          vehicle: {
+            makeModelYear: extracted.vehicleData.vehicle.makeModelYear.value,
+            plate: extracted.vehicleData.vehicle.plate.value,
+            fipeCode: extracted.vehicleData.vehicle.fipeCode.value
+          }
+        },
+        coverage: {
+          comprehensive: {
+            type: "Compreensiva",
+            value: extracted.coverage.comprehensive.value
+          },
+          deductible: {
+            value: extracted.coverage.deductible.value
+          },
+          thirdPartyLiability: {
+            propertyDamage: extracted.coverage.thirdPartyLiability.propertyDamage.value,
+            bodilyInjury: extracted.coverage.thirdPartyLiability.bodilyInjury.value
+          },
+          moralDamages: extracted.coverage.moralDamages.value,
+          greenCard: extracted.coverage.greenCard.value,
+          roadside: extracted.coverage.roadside.value,
+          rentalCar: extracted.coverage.rentalCar.value,
+          glass: {
+            coverage: "Contratado",
+            deductibles: {
+              conventionalHeadlights: "",
+              ledHeadlights: "",
+              xenonHeadlights: "",
+              conventionalAuxLights: "",
+              ledAuxLights: "",
+              xenonAuxLights: "",
+              conventionalTaillights: "",
+              auxTaillights: "",
+              ledTaillights: "",
+              windshield: "",
+              conventionalMirrors: "",
+              sunroof: "",
+              sidePanels: "",
+              rearWindow: ""
+            }
+          }
+        },
+        payment: {
+          annualPremium: extracted.payment.annualPremium.value,
+          paymentOptions: {
+            debit: extracted.payment.paymentOptions.value.debit,
+            creditCard: extracted.payment.paymentOptions.value.creditCard,
+            porto: ""
+          }
+        },
+        mainDriver: {
+          name: extracted.mainDriver.name.value,
+          birthDate: extracted.mainDriver.birthDate.value,
+          maritalStatus: extracted.mainDriver.maritalStatus.value,
+          youngDriverCoverage: extracted.mainDriver.youngDriverCoverage.value,
+          garage: extracted.mainDriver.garage.value,
+          zipCode: extracted.mainDriver.zipCode.value,
+          vehicleUse: extracted.mainDriver.vehicleUse.value
+        }
+      };
+  
+      setProposalData(proposal);
+      setShowProposal(true);
+    } catch (error) {
+      console.error('Erro ao processar PDF:', error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleExportPDF = () => {
@@ -188,21 +466,169 @@ export default function PropostasPage() {
     document.body.removeChild(link);
   };
 
+  const ValidationIndicator: React.FC<{
+    field: ExtractedField<any>;
+    onEdit: (value: string) => void;
+    label?: string;
+  }> = ({ field, onEdit, label }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [editValue, setEditValue] = useState(field.value);
+    const [showTooltip, setShowTooltip] = useState(false);
+  
+    return (
+      <div className="flex items-center gap-2 group relative">
+        {/* Indicador de confiança - usando SVGs inline */}
+        {field.confidence > 0.8 ? (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            className="h-4 w-4 text-green-500"
+            strokeWidth="2"
+          >
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+        ) : (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            className="h-4 w-4 text-yellow-500"
+            strokeWidth="2"
+          >
+            <path d="M12 9v4M12 17h.01M3 12a9 9 0 1 1 18 0 9 9 0 0 1-18 0Z" />
+          </svg>
+        )}
+        
+        {/* Campo de edição ou valor */}
+        {isEditing ? (
+          <Input
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={() => {
+              setIsEditing(false);
+              onEdit(editValue);
+            }}
+            className="flex-1"
+            autoFocus
+          />
+        ) : (
+          <div className="flex items-center gap-2 flex-1">
+            {label && <span className="font-medium">{label}:</span>}
+            <span>{field.value}</span>
+            <Button
+              onClick={() => setIsEditing(true)}
+              className="opacity-0 group-hover:opacity-100"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                className="h-4 w-4"
+                strokeWidth="2"
+              >
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </Button>
+          </div>
+        )}
+        
+        {/* Tooltip para contexto do PDF */}
+        {field.confidence < 0.8 && field.pdfContext && (
+          <div className="relative">
+            <Button
+              className="p-1"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                className="h-4 w-4 text-zinc-400"
+                strokeWidth="2"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4M12 8h.01" />
+              </svg>
+            </Button>
+            
+            {showTooltip && (
+              <div className="absolute z-10 w-64 p-2 text-sm bg-white border rounded-md shadow-lg -right-2 top-8">
+                <div className="text-zinc-600">{field.pdfContext}</div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderProposal = () => {
-    if (!proposalData) return null;
+    if (!proposalData || !extractedData) return null;
 
     return (
       <div className="max-w-4xl mx-auto space-y-8 bg-white">
         {/* Dados do Segurado */}
         <div className="p-6">
-          <Text className="font-bold mb-6">Segurado(a): {proposalData.vehicleData.insuredName}</Text>
-          
+        <section>
+        <div className="space-y-4">
+          <ValidationIndicator
+            field={extractedData.vehicleData.insuredName}
+            label="Segurado(a)"
+            onEdit={(value) => {
+              setProposalData(prev => ({
+                ...prev!,
+                vehicleData: {
+                  ...prev!.vehicleData,
+                  insuredName: value
+                }
+              }));
+            }}
+          />
+
+          <ValidationIndicator
+                  field={extractedData.vehicleData.vehicle.makeModelYear}
+                  label="Marca/Modelo/Ano"
+                  onEdit={(value) => {
+                    setProposalData(prev => ({
+                      ...prev!,
+                      vehicleData: {
+                        ...prev!.vehicleData,
+                        vehicle: {
+                          ...prev!.vehicleData.vehicle,
+                          makeModelYear: value
+                        }
+                      }
+                    }));
+                  }}
+          />
+
+          </div>
+          </section>
           <Heading level={3} className="mb-4">DESCRIÇÃO DO VEÍCULO</Heading>
           <Table>
             <TableBody>
               <TableRow>
                 <TableCell className="font-medium">Marca/Modelo/Ano modelo</TableCell>
-                <TableCell>{proposalData.vehicleData.vehicle.makeModelYear}</TableCell>
+                <TableCell>
+                <ValidationIndicator
+                  field={extractedData.vehicleData.vehicle.makeModelYear}
+                  onEdit={(value) => {
+                    setProposalData(prev => ({
+                      ...prev!,
+                      vehicleData: {
+                        ...prev!.vehicleData,
+                        vehicle: {
+                          ...prev!.vehicleData.vehicle,
+                          makeModelYear: value
+                        }
+                      }
+                    }));
+                  }}
+                />
+              </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Placa</TableCell>
@@ -216,6 +642,7 @@ export default function PropostasPage() {
           </Table>
 
           {/* Coberturas */}
+          <section>
           <Heading level={3} className="mt-8 mb-4">OPÇÕES DE CONTRATAÇÃO</Heading>
           <Table>
             <TableHead>
@@ -259,6 +686,7 @@ export default function PropostasPage() {
               </TableRow>
             </TableBody>
           </Table>
+          </section>
 
           {/* Pagamento */}
           <div className="mt-8">

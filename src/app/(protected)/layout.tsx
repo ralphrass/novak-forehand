@@ -1,20 +1,14 @@
-import { getEvents } from '@/data'
-import { ApplicationLayout } from './application-layout'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '../api/auth/[...nextauth]/route'
-import { redirect } from 'next/navigation'
+import { ApplicationLayout } from './application-layout';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
-export default async function ProtectedLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const session = await getServerSession(authOptions)
-  const events = await getEvents()
+export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect('/auth/signin')
+    redirect('/login');
   }
 
-  return <ApplicationLayout events={events}>{children}</ApplicationLayout>
+  return <ApplicationLayout>{children}</ApplicationLayout>;
 }
