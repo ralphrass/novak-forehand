@@ -145,7 +145,11 @@ export function ApplicationLayout({
               </SidebarItem> */}
               <SidebarItem href="/proposta" current={pathname.startsWith('/proposta')}>
                 <Square2StackIcon />
-                <SidebarLabel>Gerador de Proposta</SidebarLabel>
+                <SidebarLabel>Gerar Proposta (DEMO)</SidebarLabel>
+              </SidebarItem>
+              <SidebarItem href="/gerar_proposta" current={pathname.startsWith('/gerador_proposta')}>
+                <Square2StackIcon />
+                <SidebarLabel>Gerar Proposta</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/assistente" current={pathname.startsWith('/assistente')}>
                 <TicketIcon />
