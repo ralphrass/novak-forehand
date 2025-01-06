@@ -15,13 +15,7 @@ const nextConfig = {
       },
     ],
   },
-  // Adicionando configurações para Azure Web App
-  experimental: {
-    outputStandalone: true,
-  },
-  webServer: {
-    port: process.env.PORT || 8080,
-  }
+  output: 'standalone'
 }
 
 export default nextConfig
