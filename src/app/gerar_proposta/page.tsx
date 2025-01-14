@@ -1,20 +1,74 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { extractFields } from "@/utils/extractFields";
+import { extractFields, TabelaPagamento, Parcela } from "@/utils/extractFields";
+
 
 const Page: React.FC = () => {
+
+    interface FormDataType {
+        proponente: string;
+        nascimento: string;
+        placa: string;
+        modelo: string;
+        anoFabricacao: string;
+        anoModelo: string;
+        fipe: string;
+        coberturas: string;
+        compreensiva: string;
+        franquiaCasco: string;
+        rcfDanosMateriais: string;
+        rcfDanosCorporais: string;
+        danosMorais: string;
+        assistencia24h: string;
+        carroReserva: string;
+        vidros: string;
+        franquiaVidros: string;
+        pequenosReparos: string;
+        franquiaPequenosReparos: string;
+        investimentoAnual: string;
+        formasPagamento: TabelaPagamento[];
+        nomeCondutor: string;
+        estadoCivil: string;
+        coberturaJovem: string;
+        garagem: string;
+        cepPernoite: string;
+        usoVeiculo: string;
+    }
 
     const [showProposal, setShowProposal] = useState(false);
     const [file, setFile] = useState<File | null>(null);
     const [extractedText, setExtractedText] = useState<string>('');
     const [isProcessing, setIsProcessing] = useState(false);
-    const [formData, setFormData] = useState({
-        proponente: "", // Nome do Proponente
-        nascimento: "", // Data de Nascimento
-        placa: "",      // Placa do Veículo
-        modelo: "",
-      });
+    const [formData, setFormData] = useState<FormDataType>({
+        proponente: "",            // Nome do Proponente
+        nascimento: "",            // Data de Nascimento
+        placa: "",                 // Placa do Veículo
+        modelo: "",                // Modelo do Veículo
+        anoFabricacao: "",         // Ano de Fabricação
+        anoModelo: "",             // Ano do Modelo
+        fipe: "",                  // Valor FIPE
+        coberturas: "",            // Coberturas
+        compreensiva: "",          // Cobertura Compreensiva
+        franquiaCasco: "",         // Franquia Casco
+        rcfDanosMateriais: "",     // RCF-V Danos Materiais
+        rcfDanosCorporais: "",     // RCF-V Danos Corporais
+        danosMorais: "",           // Danos Morais
+        assistencia24h: "",        // Assistência 24 horas
+        carroReserva: "",          // Carro Reserva
+        vidros: "",                // Cobertura para Vidros
+        franquiaVidros: "",        // Franquia Vidros
+        pequenosReparos: "",       // Pequenos Reparos
+        franquiaPequenosReparos: "", // Franquia Pequenos Reparos
+        investimentoAnual: "",     // Investimento Anual
+        formasPagamento: [],  // Formas de Pagamento
+        nomeCondutor: "",
+        estadoCivil: "",
+        coberturaJovem: "",
+        garagem: "",
+        cepPernoite: "",
+        usoVeiculo: ""
+    });    
       
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,15 +111,43 @@ const Page: React.FC = () => {
 
           // **Use a função extractFields para extrair os campos do texto**
           const extractedFields = extractFields(text);
+
+          // Torne os campos acessíveis globalmente
+          (window as any).extractedFields = extractedFields;
+
           console.log("Campos Extraídos:", extractedFields);
 
           // Atualize o estado do formulário com os campos extraídos
-        setFormData({
-            proponente: extractedFields.proponente || "",
-            nascimento: extractedFields.nascimento || "",
-            placa: extractedFields.placa || "",
-            modelo: extractedFields.modelo || "",
-        });
+            setFormData({
+                proponente: extractedFields.proponente || "",
+                nascimento: extractedFields.nascimento || "",
+                placa: extractedFields.placa || "",
+                modelo: extractedFields.modelo || "",
+                anoFabricacao: extractedFields.anoFabricacao || "",
+                anoModelo: extractedFields.anoModelo || "",
+                fipe: extractedFields.fipe || "",
+                coberturas: extractedFields.coberturas || "",
+                compreensiva: extractedFields.compreensiva || "",
+                franquiaCasco: extractedFields.franquiaCasco || "",
+                rcfDanosMateriais: extractedFields.rcfDanosMateriais || "",
+                rcfDanosCorporais: extractedFields.rcfDanosCorporais || "",
+                danosMorais: extractedFields.danosMorais || "",
+                assistencia24h: extractedFields.assistencia24h || "",
+                carroReserva: extractedFields.carroReserva || "",
+                vidros: extractedFields.vidros || "",
+                franquiaVidros: extractedFields.franquiaVidros || "",
+                pequenosReparos: extractedFields.pequenosReparos || "",
+                franquiaPequenosReparos: extractedFields.franquiaPequenosReparos || "",
+                investimentoAnual: extractedFields.investimentoAnual || "",
+                formasPagamento: extractedFields.formasPagamento || [],
+                nomeCondutor: extractedFields.nomeCondutor || "",
+                estadoCivil: extractedFields.estadoCivil || "",
+                coberturaJovem: extractedFields.coberturaJovem || "",
+                garagem: extractedFields.garagem || "",
+                cepPernoite: extractedFields.cepPernoite || "",
+                usoVeiculo: extractedFields.usoVeiculo || ""
+            });
+
       
           // Atualiza o estado com o texto extraído e renderiza o formulário
           setExtractedText(text); // Define o texto extraído
@@ -276,7 +358,8 @@ const Page: React.FC = () => {
                 id="fipe"
                 name="fipe"
                 type="text"
-                defaultValue="023184-3"
+                value={formData.fipe}
+                onChange={(e) => setFormData({ ...formData, fipe: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -295,7 +378,8 @@ const Page: React.FC = () => {
                 id="cobertura"
                 name="cobertura"
                 type="text"
-                defaultValue="Opção 1"
+                value={formData.coberturas}
+                onChange={(e) => setFormData({ ...formData, coberturas: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -307,7 +391,8 @@ const Page: React.FC = () => {
                 id="compreensiva"
                 name="compreensiva"
                 type="text"
-                defaultValue="100% FIPE"
+                value={formData.compreensiva}
+                onChange={(e) => setFormData({ ...formData, compreensiva: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -319,7 +404,8 @@ const Page: React.FC = () => {
                 id="franquiaCasco"
                 name="franquiaCasco"
                 type="text"
-                defaultValue="R$ 10.445,68"
+                value={formData.franquiaCasco}
+                onChange={(e) => setFormData({ ...formData, franquiaCasco: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -331,7 +417,8 @@ const Page: React.FC = () => {
                 id="danosMateriais"
                 name="danosMateriais"
                 type="text"
-                defaultValue="R$ 200.000,00"
+                value={formData.rcfDanosMateriais}
+                onChange={(e) => setFormData({ ...formData, rcfDanosMateriais: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -343,7 +430,8 @@ const Page: React.FC = () => {
                 id="danosCorporais"
                 name="danosCorporais"
                 type="text"
-                defaultValue="R$ 200.000,00"
+                value={formData.rcfDanosCorporais}
+                onChange={(e) => setFormData({ ...formData, franquiaCasco: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -355,7 +443,8 @@ const Page: React.FC = () => {
                 id="danosMorais"
                 name="danosMorais"
                 type="text"
-                defaultValue="R$ 10.000,00"
+                value={formData.danosMorais}
+                onChange={(e) => setFormData({ ...formData, danosMorais: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -379,7 +468,8 @@ const Page: React.FC = () => {
                 id="assistencia"
                 name="assistencia"
                 type="text"
-                defaultValue="Guincho 550 Km"
+                value={formData.assistencia24h}
+                onChange={(e) => setFormData({ ...formData, assistencia24h: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -391,7 +481,8 @@ const Page: React.FC = () => {
                 id="carroReserva"
                 name="carroReserva"
                 type="text"
-                defaultValue="15 Diárias"
+                value={formData.carroReserva}
+                onChange={(e) => setFormData({ ...formData, carroReserva: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -403,7 +494,8 @@ const Page: React.FC = () => {
                 id="vidros"
                 name="vidros"
                 type="text"
-                defaultValue="Contratado"
+                value={formData.vidros}
+                onChange={(e) => setFormData({ ...formData, vidros: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -411,51 +503,40 @@ const Page: React.FC = () => {
               <label htmlFor="franquia_vidros" className="block text-sm font-medium">
                 Franquia Vidros (R$)
               </label>
-              <input
-                id="franquia_vidros"
-                name="franquia_vidros"
-                type="text"
-                defaultValue="Faróis Convencionais 480,00
-                            Faróis Led 2.310,00
-                            Faróis Xênon 2.310,00
-                            Faróis Auxiliares Convencionais 130,00
-                            Faróis Auxiliares Led 2.310,00
-                            Faróis Auxiliares Xênon 2.310,00
-                            Lanternas Convencionais 245,00
-                            Lanternas Auxiliares 130,00
-                            Lanternas Led 510,00
-                            Para-brisa 555,00
-                            Retrovisores Convencionais 485,00
-                            Teto Solar 1.665,00
-                            Vidros Laterais 155,00
-                            Traseiro (Vigia) 310,00"
+              <textarea
+                id="franquiaVidros"
+                name="franquiaVidros"
+                value={formData.franquiaVidros}
+                onChange={(e) => setFormData({ ...formData, franquiaVidros: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-              />
+                rows={10} // Ajuste o número de linhas conforme necessário
+                />
             </div>
             <div>
               <label htmlFor="pequenos_reparos" className="block text-sm font-medium">
                 Pequenos Reparos (Rede referenciada)
               </label>
-              <input
-                id="pequenos_reparos"
-                name="pequenos_reparos"
-                type="text"
-                defaultValue="Não Contratado"
+              <textarea
+                id="pequenosReparos"
+                name="pequenosReparos"
+                value={formData.pequenosReparos}
+                onChange={(e) => setFormData({ ...formData, pequenosReparos: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-              />
+                rows={3}
+                />
             </div>
             <div>
               <label htmlFor="franquia_pequenos_reparos" className="block text-sm font-medium">
                 Franquia Pequenos Reparos (R$)
               </label>
-              <input
-                id="franquia_pequenos_reparos"
-                name="franquia_pequenos_reparos"
-                type="text"
-                defaultValue="Reparo de Lataria e Pintura 160,00
-                                SRA - Reparo em arranhões - 1a peça 75,00 SRA - Reparo em arranhões demais peças 15,00"
+              <textarea
+                id="franquiaPequenosReparos"
+                name="franquiaPequenosReparos"
+                value={formData.franquiaPequenosReparos}
+                onChange={(e) => setFormData({ ...formData, franquiaPequenosReparos: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-              />
+                rows={10}
+                />
             </div>
             <div>
               <label htmlFor="investimento_anual" className="block text-sm font-medium">
@@ -465,7 +546,8 @@ const Page: React.FC = () => {
                 id="investimento_anual"
                 name="investimento_anual"
                 type="text"
-                defaultValue="R$ 3.935,11"
+                value={formData.investimentoAnual}
+                onChange={(e) => setFormData({ ...formData, investimentoAnual: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -473,15 +555,44 @@ const Page: React.FC = () => {
               <label htmlFor="formas_pagamento" className="block text-sm font-medium">
                 FORMAS DE PAGAMENTO
               </label>
-              <input
-                id="formas_pagamento"
-                name="formas_pagamento"
-                type="text"
-                defaultValue="1+5 R$ 655,85 s/juros (Débito em Conta)
-
-                                1+9 R$ 393,51s/juros (Cartão de Crédito) – não compromete o limite do Cartão"
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-              />
+              <textarea
+                    id="formasPagamento"
+                    name="formasPagamento"
+                    value={formData.formasPagamento.map(tabela => 
+                        `${tabela.tipo}\n${tabela.parcelas.map(parcela => 
+                            `${parcela.parcelas}x R$${parcela.valor}${parcela.detalhes ? ` (${parcela.detalhes})` : ''}`
+                        ).join('\n')}`
+                    ).join('\n\n')}
+                    onChange={(e) => {
+                        try {
+                            const formattedValue: TabelaPagamento[] = e.target.value
+                                .split('\n\n')
+                                .filter(block => block.trim())
+                                .map(block => {
+                                    const [tipo, ...parcelasLines] = block.split('\n');
+                                    return {
+                                        tipo,
+                                        parcelas: parcelasLines
+                                            .map(line => {
+                                                const match = line.match(/(\d+)x R\$([\d.,]+)(?:\s*\((.*?)\))?/);
+                                                if (!match) return null;
+                                                return {
+                                                    parcelas: match[1],
+                                                    valor: match[2],
+                                                    detalhes: match[3] || ''
+                                                };
+                                            })
+                                            .filter((p): p is Parcela => p !== null) // Type guard para remover nulls
+                                    };
+                                });
+                            setFormData({ ...formData, formasPagamento: formattedValue });
+                        } catch (error) {
+                            console.error('Erro ao processar o formato:', error);
+                        }
+                    }}
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    rows={15}
+                />
             </div>
           </div>
         </section>
@@ -498,7 +609,8 @@ const Page: React.FC = () => {
                 id="nomeCondutor"
                 name="nomeCondutor"
                 type="text"
-                defaultValue="Renato Cesar Lisboa da Silva"
+                value={formData.nomeCondutor}
+                onChange={(e) => setFormData({ ...formData, nomeCondutor: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -510,7 +622,8 @@ const Page: React.FC = () => {
                 id="nascimento"
                 name="nascimento"
                 type="date"
-                defaultValue="1960-03-04"
+                value={formData.nascimento}
+                onChange={(e) => setFormData({ ...formData, nascimento: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -522,7 +635,8 @@ const Page: React.FC = () => {
                 id="estadoCivil"
                 name="estadoCivil"
                 type="text"
-                defaultValue="Casado(a) ou convive em União Estável"
+                value={formData.estadoCivil}
+                onChange={(e) => setFormData({ ...formData, estadoCivil: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -534,7 +648,8 @@ const Page: React.FC = () => {
                 id="coberturaJovem"
                 name="coberturaJovem"
                 type="text"
-                defaultValue="Não"
+                value={formData.coberturaJovem}
+                onChange={(e) => setFormData({ ...formData, coberturaJovem: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -546,7 +661,8 @@ const Page: React.FC = () => {
                 id="garagem"
                 name="garagem"
                 type="text"
-                defaultValue="Sim"
+                value={formData.garagem}
+                onChange={(e) => setFormData({ ...formData, garagem: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -558,7 +674,8 @@ const Page: React.FC = () => {
                 id="cep"
                 name="cep"
                 type="text"
-                defaultValue="95200-040"
+                value={formData.cepPernoite}
+                onChange={(e) => setFormData({ ...formData, cepPernoite: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -570,7 +687,8 @@ const Page: React.FC = () => {
                 id="usoVeiculo"
                 name="usoVeiculo"
                 type="text"
-                defaultValue="Particular"
+                value={formData.usoVeiculo}
+                onChange={(e) => setFormData({ ...formData, usoVeiculo: e.target.value })}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
