@@ -3,8 +3,9 @@
 
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from 'react';
 
-export default function SignInPage() {
+function SignInContent() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
@@ -18,5 +19,17 @@ export default function SignInPage() {
         Entrar com Google
       </button>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <h1 className="text-2xl font-bold mb-4">Carregando...</h1>
+      </div>
+    }>
+      <SignInContent />
+    </Suspense>
   );
 }

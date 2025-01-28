@@ -82,7 +82,10 @@ export function ApplicationLayout({
   let pathname = usePathname()
   const { data: session } = useSession()
 
-  console.log('Session data:', session) // Adicione este log
+  // Remove o console.log ou adiciona uma condição
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Session data:', session)
+  }
 
   // Se não houver sessão, não renderiza o layout
   if (!session) {
