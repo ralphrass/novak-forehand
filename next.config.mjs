@@ -5,7 +5,7 @@ const nextConfig = {
     NEXT_PUBLIC_AZURE_OPENAI_ENDPOINT: process.env.NEXT_PUBLIC_AZURE_OPENAI_ENDPOINT,
   },
   images: {
-    domains: ['novakstorage.blob.core.windows.net'],
+    domains: ['novakstorage.blob.core.windows.net', 'lh3.googleusercontent.com'],
     remotePatterns: [
       {
         protocol: 'https',

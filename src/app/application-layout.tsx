@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Avatar } from '@/components/avatar'
 import {
   Dropdown,
@@ -43,27 +44,29 @@ import {
   TicketIcon,
 } from '@heroicons/react/20/solid'
 import { usePathname } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
+
 
 function AccountDropdownMenu({ anchor }: { anchor: 'top start' | 'bottom end' }) {
   return (
     <DropdownMenu className="min-w-64" anchor={anchor}>
       <DropdownItem href="#">
         <UserCircleIcon />
-        <DropdownLabel>My account</DropdownLabel>
+        <DropdownLabel>Minha conta</DropdownLabel>
       </DropdownItem>
       <DropdownDivider />
       <DropdownItem href="#">
         <ShieldCheckIcon />
-        <DropdownLabel>Privacy policy</DropdownLabel>
+        <DropdownLabel>Política de privacidade</DropdownLabel>
       </DropdownItem>
       <DropdownItem href="#">
         <LightBulbIcon />
-        <DropdownLabel>Share feedback</DropdownLabel>
+        <DropdownLabel>Enviar feedback</DropdownLabel>
       </DropdownItem>
       <DropdownDivider />
-      <DropdownItem href="#">
+      <DropdownItem onClick={() => signOut({ callbackUrl: '/auth/signin' })}>
         <ArrowRightStartOnRectangleIcon />
-        <DropdownLabel>Sign out</DropdownLabel>
+        <DropdownLabel>Sair</DropdownLabel>
       </DropdownItem>
     </DropdownMenu>
   )
@@ -77,6 +80,14 @@ export function ApplicationLayout({
   children: React.ReactNode
 }) {
   let pathname = usePathname()
+  const { data: session } = useSession()
+
+  console.log('Session data:', session) // Adicione este log
+
+  // Se não houver sessão, não renderiza o layout
+  if (!session) {
+    return <>{children}</>
+  }
 
   return (
     <SidebarLayout
@@ -86,7 +97,19 @@ export function ApplicationLayout({
           <NavbarSection>
             <Dropdown>
               <DropdownButton as={NavbarItem}>
-                <Avatar src="/users/erica.jpg" square />
+                {session.user?.image ? (
+                  <Image
+                    src={session.user.image}
+                    alt={session.user?.name || ''}
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                    {session.user?.name?.charAt(0) || '?'}
+                  </div>
+                )}
               </DropdownButton>
               <AccountDropdownMenu anchor="bottom end" />
             </Dropdown>
@@ -200,11 +223,25 @@ export function ApplicationLayout({
             <Dropdown>
               <DropdownButton as={SidebarItem}>
                 <span className="flex min-w-0 items-center gap-3">
-                  <Avatar src="/users/erica.jpg" className="size-10" square alt="" />
+                  {session.user?.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt={session.user?.name || ''}
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                      {session.user?.name?.charAt(0) || '?'}
+                    </div>
+                  )}
                   <span className="min-w-0">
-                    <span className="block truncate text-sm/5 font-medium text-zinc-950 dark:text-white">Erica</span>
+                    <span className="block truncate text-sm/5 font-medium text-zinc-950 dark:text-white">
+                      {session.user?.name}
+                    </span>
                     <span className="block truncate text-xs/5 font-normal text-zinc-500 dark:text-zinc-400">
-                      erica@example.com
+                      {session.user?.email}
                     </span>
                   </span>
                 </span>
