@@ -1,31 +1,60 @@
 // src/app/api/auth/[...nextauth]/route.ts
-import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+import NextAuth from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
+import { users } from '@/data/users'
 
 const handler = NextAuth({
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Senha", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null
+        }
+
+        const user = users.find(user => 
+          user.email === credentials.email && 
+          user.password === credentials.password && 
+          user.active
+        )
+
+        if (!user) {
+          return null
+        }
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
+      }
+    })
   ],
-  callbacks: {
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.image = token.picture as string;
-      }
-      return session;
-    },
-    async jwt({ token, user, account }) {
-      if (account) {
-        token.picture = user.image;
-      }
-      return token;
-    }
-  },
   pages: {
     signIn: "/auth/signin",
   },
-});
+  callbacks: {
+    async session({ session, token }) {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          role: token.role
+        }
+      }
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role
+      }
+      return token
+    }
+  }
+})
 
-export { handler as GET, handler as POST };
+export { handler as GET, handler as POST }
