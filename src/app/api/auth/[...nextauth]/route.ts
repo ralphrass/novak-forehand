@@ -16,6 +16,7 @@ const handler = NextAuth({
           return null
         }
 
+        // Procura o usuário e verifica a senha
         const user = users.find(user => 
           user.email === credentials.email && 
           user.password === credentials.password && 

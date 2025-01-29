@@ -8,6 +8,7 @@ export interface User {
     active: boolean;
   }
   
+  // Lista de usuários permitidos
   export const users: User[] = [
     {
       id: '1',
