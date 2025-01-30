@@ -4,21 +4,6 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
-  const host = request.headers.get("host");
-
-  // Redireciona para o domínio personalizado, sem porta
-  if (host === "novakapp.azurewebsites.net") {
-    return NextResponse.redirect('https://novk.com.br' + request.nextUrl.pathname);
-  }
-
-  // Procura o usuário e verifica a senha
-  const user = users.find(user => 
-    user.email === credentials.email && 
-    user.password === credentials.password && 
-    user.active
-  )
-
-  // Rest of your middleware code...
   const pathname = request.nextUrl.pathname;
 
   // Lista de rotas que não precisam de autenticação
