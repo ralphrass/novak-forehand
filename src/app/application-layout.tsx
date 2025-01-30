@@ -64,7 +64,7 @@ function AccountDropdownMenu({ anchor }: { anchor: 'top start' | 'bottom end' })
         <DropdownLabel>Enviar feedback</DropdownLabel>
       </DropdownItem>
       <DropdownDivider />
-      <DropdownItem onClick={() => signOut({ callbackUrl: '/auth/signin' })}>
+      <DropdownItem onClick={() => signOut({ callbackUrl: '/auth/signin', redirect: true })}>
         <ArrowRightStartOnRectangleIcon />
         <DropdownLabel>Sair</DropdownLabel>
       </DropdownItem>

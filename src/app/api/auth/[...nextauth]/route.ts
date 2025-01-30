@@ -54,7 +54,13 @@ const handler = NextAuth({
         token.role = user.role
       }
       return token
-    }
+    },
+    async redirect({ url, baseUrl }) {
+      // Se a URL começar com o baseUrl, use-a
+      if (url.startsWith(baseUrl)) return url
+      // Caso contrário, redirecione para o baseUrl
+      return baseUrl
+    },
   }
 })
 
