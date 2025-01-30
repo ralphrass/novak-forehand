@@ -1,3 +1,4 @@
+// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
@@ -5,13 +6,19 @@ import { getToken } from "next-auth/jwt";
 export async function middleware(request: NextRequest) {
   const host = request.headers.get("host");
 
-  // Redireciona para o domínio personalizado
+  // Redireciona para o domínio personalizado, sem porta
   if (host === "novakapp.azurewebsites.net") {
-    const url = request.nextUrl.clone();
-    url.hostname = "novk.com.br";
-    return NextResponse.redirect(url, 308);
+    return NextResponse.redirect('https://novk.com.br' + request.nextUrl.pathname);
   }
 
+  // Procura o usuário e verifica a senha
+  const user = users.find(user => 
+    user.email === credentials.email && 
+    user.password === credentials.password && 
+    user.active
+  )
+
+  // Rest of your middleware code...
   const pathname = request.nextUrl.pathname;
 
   // Lista de rotas que não precisam de autenticação
@@ -45,12 +52,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all paths except:
-     * 1. /api/auth/* (API routes of NextAuth.js)
-     * 2. /_next/* (Next.js internals)
-     * 3. /favicon.ico, /fonts/, /images/ (static files)
-     */
     '/((?!api/auth|_next|fonts|images|favicon.ico).*)',
   ],
 };
