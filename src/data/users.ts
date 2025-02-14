@@ -17,5 +17,13 @@ export interface User {
       password: 'novak123', // senha em texto puro por enquanto
       role: 'admin',
       active: true
+    },
+    {
+      id: '2',
+      name: 'Pentágono',
+      email: 'rudi@pentagonoseguros.com',
+      password: 'Pentagon0', // senha em texto puro por enquanto
+      role: 'admin',
+      active: true
     }
   ]
